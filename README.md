@@ -1,41 +1,43 @@
-# Fetch Rewards #
-## Data Engineering Take Home: ETL off a SQS Qeueue ##
+# Fetch Rewards # - ETL off a SQS Qeueue
 
-You may use any programming language to complete this exercise. We strongly encourage you to write a README to explain how to run your application and summarize your thought process.
+### Background Information and Questions
+This was a project that simulates and ETL that reads messages from an AWS SQS Queue, transforms that data, and uploads to a Postgres Database. 
 
-## What do I need to do?
-This challenge will focus on your ability to write a small application that can read from an AWS SQS Qeueue, transform that data, then write to a Postgres database. This project includes steps for using docker to run all the components locally, **you do not need an AWS account to do this take home.**
+I had to make a number of decisions from the following while developling this solution: 
 
-Your objective is to read JSON data containing user login behavior from an AWS SQS Queue that is made available via [localstack](https://github.com/localstack/localstack). Fetch wants to hide personal identifiable information (PII). The fields `device_id` and `ip` should be masked, but in a way where it is easy for data analysts to identify duplicate values in those fields.
+1. How will the messages be read from the queue?
+2. What type of data structures should be used?
+3. How can I mask the PII data so that duplicate values can be identified?
+4. What is a good way to connect to the postgres database? 
+5. Where and how will the application run?
 
-Once you have flattened the JSON data object and masked those two fields, write each record to a Postgres database that is made available via [Postgres's docker image](https://hub.docker.com/_/postgres). Note the target table's DDL is:
+### Answering Questions Above
 
-```sql
--- Creation of user_logins table
+1. The messages were read using the aws sqs client, which allows a method `.receive_message()` to be used. Here I can specify the queue url and later use the response to grab the body of the message that was received. A max of 10 messages can be received when using this function. 
 
-CREATE TABLE IF NOT EXISTS user_logins(
-    user_id             varchar(128),
-    device_type         varchar(32),
-    masked_ip           varchar(256),
-    masked_device_id    varchar(256),
-    locale              varchar(32),
-    app_version         integer,
-    create_date         date
-);
-```
+2. I used several data structures for the storing of the message body from SQS and for the transformation process before uploading this data to a postgres database. The SQS message body comes in as a dictionary string. I want to convert this to a dictionary and then append this data to a dataframe. I convert to a dictionary using `json_loads()` then I append this data to an empty dataframe for the transformation process. 
 
-You will have to make a number of decisions as you develop this solution:
+3. The transformation process includes a strategy to mask PII. The two values being masked are ip and device_id. I was able to find a [hashing library](https://towardsdatascience.com/anonymise-sensitive-data-in-a-pandas-dataframe-column-with-hashlib-8e7ef397d91f) using SHA-256 encryption which allows me to hash data without losing places of duplicate items. 
 
-*    How will you read messages from the queue?
-*    What type of data structures should be used?
-*    How will you mask the PII data so that duplicate values can be identified?
-*    What will be your strategy for connecting and writing to Postgres?
-*    Where and how will your application run?
+4. Connecting to the database involved using the `psycopg2` library, which allows me to create a connection using the following: 
+``` bash 
 
-**The recommended time to spend on this take home is 2-3 hours.** Make use of code stubs, doc strings, and a next steps section in your README to elaborate on ways that you would continue fleshing out this project if you had the time. For this assignment an ounce of communication and organization is worth a pound of execution.
+ conn = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="localhost",
+        port="5432",
+    )
+ ```
+From this point I was able to establish a cursor and execute any lines of SQL to alter or insert data into the `user_logins` table. 
+
+5. Running the application was straight forward. Have the Docker app running. Make sure all dependencies are installed, then open up terminal in the project directory and run the following command `python3 retrieve_transform_load.py`. This should run the script and if PgAdmin or another Postgres IDE is up, the data will be visible in the `user-logins` table.
+
+# Getting Started
 
 ## Project Setup
-1. Fork this repository to a personal Github, GitLab, Bitbucket, etc... account. We will not accept PRs to this project.
+1. Fork this [repository]( https://github.com/OmarMiah/Data_Engineering_Take_Home_Fetch) to a personal Github, GitLab, Bitbucket, etc... account.
 2. You will need the following installed on your local machine
     * make
         * Ubuntu -- `apt-get -y install make`
@@ -46,7 +48,7 @@ You will have to make a number of decisions as you develop this solution:
     * awslocal -- `pip install awscli-local`  or run `make pip install` in the project root
     * docker -- [docker install guide](https://docs.docker.com/get-docker/)
     * docker-compose -- [docker-compose install guide]()
-3. Run `make start` to execute the docker-compose file in the the project (see scripts/ and data/ directories to see what's going on, if you're curious)
+3. Run `make start` or `Docker Compose` to execute the docker-compose file in the the project (see scripts/ and data/ directories for more details)
     * An AWS SQS Queue is created
     * A script is run to write 100 JSON records to the queue
     * A Postgres database will be stood up
@@ -69,9 +71,9 @@ postgres=# select * from user_logins;
 ---------+-------------+-----------+------------------+--------+-------------+-------------
 (0 rows)
 ```
-5. Run `make stop` to terminate the docker containers and optionally run `make clean` to clean up docker resources.
+5. Now to run the application, simply open up a terminal in the root of your workspace or project folder where you cloned this project and type: 
 
-## All done, now what?
-Upload your codebase to a public Git repo (GitHub, Bitbucket, etc.) and please submit your Link where it says to - under the exercise via Green House our ATS. Please double-check this is publicly accessible.
-
-Please assume the evaluator does not have prior experience executing programs in your chosen language and needs documentation understand how to run your code
+```bash
+    python3 retrieve_transform_load.py 
+```
+6. Run `make stop` to terminate the docker containers and optionally run `make clean` to clean up docker resources.
