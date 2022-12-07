@@ -1,6 +1,6 @@
 # Fetch Rewards # - ETL off a SQS Qeueue
 
-#### Background Information and Questions
+### Background Information and Questions
 This was a project that simulates and ETL that reads messages from an AWS SQS Queue, transforms that data, and uploads to a Postgres Database. 
 
 I had to make a number of decisions from the following while developling this solution: 
@@ -11,7 +11,23 @@ I had to make a number of decisions from the following while developling this so
 4. What is a good way to connect to the postgres database? 
 5. Where and how will the application run?
 
+### Answering Questions Above
 
+1. The messages were read using the aws sqs client, which allows a method `.receive_message()` to be used. Here I can specify the queue url and later use the response to grab the body of the message that was received. A max of 10 messages can be received when using this function. 
+2. I used several data structures for the storing of the message body from SQS and for the transformation process before uploading this data to a postgres database. The SQS message body comes in as a dictionary string. I want to convert this to a dictionary and then append this data to a dataframe. I convert to a dictionary using `json_loads()` then I append this data to an empty dataframe for the transformation process. 
+3. The transformation process includes a strategy to mask PII. The two values being masked are ip and device_id. I was able to find a [hashing library](https://towardsdatascience.com/anonymise-sensitive-data-in-a-pandas-dataframe-column-with-hashlib-8e7ef397d91f) using SHA-256 encryption which allows me to hash data without losing places of duplicate items. 
+4. Connecting to the database involved using the `psycopg2` library, which allows me to create a connection using the following: 
+``` bash 
+
+ conn = psycopg2.connect(
+        database="postgres",
+        user="postgres",
+        password="postgres",
+        host="localhost",
+        port="5432",
+    )
+ ```
+ 
 # Getting Started
 
 ## Project Setup
