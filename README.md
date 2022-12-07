@@ -1,4 +1,4 @@
-# Fetch Rewards # - ETL off a SQS Qeueue
+# Fetch Rewards - ETL off a SQS Qeueue
 
 ### Background Information and Questions
 This was a project that simulates and ETL that reads messages from an AWS SQS Queue, transforms that data, and uploads to a Postgres Database. 
