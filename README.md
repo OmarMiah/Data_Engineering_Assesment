@@ -1,8 +1,7 @@
 # Fetch Rewards #
 ## Data Engineering Take Home: ETL off a SQS Qeueue ##
 
-## Getting Started
-
+# Getting Started
 
 ## Project Setup
 1. Fork this [repository]( https://github.com/OmarMiah/Data_Engineering_Take_Home_Fetch) to a personal Github, GitLab, Bitbucket, etc... account.
@@ -16,7 +15,7 @@
     * awslocal -- `pip install awscli-local`  or run `make pip install` in the project root
     * docker -- [docker install guide](https://docs.docker.com/get-docker/)
     * docker-compose -- [docker-compose install guide]()
-3. Run `make start` to execute the docker-compose file in the the project (see scripts/ and data/ directories to see what's going on, if you're curious)
+3. Run `make start` or `Docker Compose` to execute the docker-compose file in the the project (see scripts/ and data/ directories for more details)
     * An AWS SQS Queue is created
     * A script is run to write 100 JSON records to the queue
     * A Postgres database will be stood up
@@ -45,9 +44,4 @@ postgres=# select * from user_logins;
     python3 retrieve_transform_load.py 
 ```
 
-. Run `make stop` to terminate the docker containers and optionally run `make clean` to clean up docker resources.
-
-## All done, now what?
-Upload your codebase to a public Git repo (GitHub, Bitbucket, etc.) and please submit your Link where it says to - under the exercise via Green House our ATS. Please double-check this is publicly accessible.
-
-Please assume the evaluator does not have prior experience executing programs in your chosen language and needs documentation understand how to run your code
+6. Run `make stop` to terminate the docker containers and optionally run `make clean` to clean up docker resources.
