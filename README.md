@@ -1,5 +1,4 @@
-# Fetch Rewards #
-## Data Engineering Take Home: ETL off a SQS Qeueue ##
+# Fetch Rewards # - Data Engineering Take Home: ETL off a SQS Qeueue
 
 # Getting Started
 
