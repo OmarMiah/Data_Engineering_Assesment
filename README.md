@@ -1,5 +1,16 @@
 # Fetch Rewards # - ETL off a SQS Qeueue
 
+This was a project that simulates and ETL that reads messages from an AWS SQS Queue, transforms that data, and uploads to a Postgres Database. 
+
+I had to make a number of decisions from the following while developling this solution: 
+
+How will the messages be read from the queue?
+What type of data structures should be used?
+How can I mask the PII data so that duplicate values can be identified?
+What is a good way to connect to the postgres database? 
+Where and how will the application run?
+
+
 # Getting Started
 
 ## Project Setup
